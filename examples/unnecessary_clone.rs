@@ -13,7 +13,7 @@ fn count_words_after(text: &str) -> usize {
 }
 
 // BEFORE: clones every element to search the list.
-#[allow(dead_code, clippy::ptr_arg)]
+#[allow(dead_code, unknown_lints, clippy::ptr_arg, clippy::redundant_iter_cloned)]
 fn contains_before(names: &[String], target: &String) -> bool {
     names.iter().cloned().any(|n| n == *target)
 }

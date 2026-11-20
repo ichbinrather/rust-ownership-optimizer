@@ -14,7 +14,7 @@ impl Shape for Square {
 }
 
 // BEFORE: Box<Vec<T>> adds a second heap indirection; Vec already owns heap storage.
-#[allow(dead_code, clippy::box_collection)]
+#[allow(dead_code, clippy::box_collection, clippy::boxed_local)]
 fn sum_before(values: Box<Vec<i32>>) -> i32 {
     values.iter().sum()
 }
