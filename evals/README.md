@@ -27,8 +27,18 @@ Run every scenario twice: once with the skill installed, once without it.
      - Windows (PowerShell): `(Select-String -Path src\main.rs -Pattern '\.clone\(\)').Count`
      - macOS / Linux: `grep -c '\.clone()' src/main.rs`
 
+## Grading
+
+`grade.py` compiles and runs every output in a run folder and applies the checks from
+`evals.json`. Results so far are in [RESULTS.md](RESULTS.md).
+
+```text
+python evals/grade.py evals/runs/2026-11-sonnet
+```
+
 ## Recording results
 
-Add a row per agent and model to the table in the main README when you publish results.
+Put each attempt in `runs/<date>-<model>/<scenario>/<base|skill>-<n>.rs`, grade it, and
+add a section to RESULTS.md.
 Pull requests with new scenarios are welcome: keep each one small, realistic, and tied
 to one rule in `SKILL.md`.

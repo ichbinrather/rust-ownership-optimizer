@@ -1,0 +1,536 @@
+[
+  {
+    "scenario": "boxed_everything",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": false
+    },
+    "pass": false,
+    "modified": true
+  },
+  {
+    "scenario": "boxed_everything",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": false
+    },
+    "pass": false,
+    "modified": true
+  },
+  {
+    "scenario": "boxed_everything",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": false
+    },
+    "pass": false,
+    "modified": true
+  },
+  {
+    "scenario": "boxed_everything",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "boxed_everything",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "boxed_everything",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_box_vec": true,
+      "no_boxed_local": true,
+      "static_dispatch": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 1,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 1,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 1,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "clone_heavy",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "find_user_borrows": true,
+      "total_len_slice": true,
+      "uses_entry": true,
+      "clones_le_1": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "e0382_moved_value",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "borrows_param": true,
+      "no_clone": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_vec_clone": true,
+      "no_refcell_unsafe": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_vec_clone": true,
+      "no_refcell_unsafe": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 1,
+    "checks": {
+      "no_vec_clone": false,
+      "no_refcell_unsafe": true
+    },
+    "pass": false,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_vec_clone": true,
+      "no_refcell_unsafe": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_vec_clone": true,
+      "no_refcell_unsafe": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "iterate_and_mutate",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_vec_clone": true,
+      "no_refcell_unsafe": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "lifetime_static",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_static": true,
+      "no_leak": true,
+      "returns_str_ref": true,
+      "no_string_vec": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "base-1",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "base-2",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "base-3",
+    "condition": "base",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "skill-1",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "skill-2",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  },
+  {
+    "scenario": "thread_clone",
+    "run": "skill-3",
+    "condition": "skill",
+    "compiles": true,
+    "same_output": true,
+    "clones": 0,
+    "checks": {
+      "no_data_clone": true,
+      "scope_or_arc": true
+    },
+    "pass": true,
+    "modified": true
+  }
+]

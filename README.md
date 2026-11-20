@@ -153,8 +153,16 @@ To audit your own project with the same Clippy lints the skill uses, run
 
 [evals/](evals/) has six small programs with mistakes an agent should catch, together
 with the prompt to give it and what counts as a pass. One of them pushes the agent to
-"just make it compile". Run them with and without the skill and compare. If you do,
-please post the results in an issue, including the agent and model you used.
+"just make it compile".
+
+First run, Claude Sonnet, three attempts per scenario: **14/18 without the skill,
+18/18 with it**. Most of the gap is the agent following the skill's preference for
+generics over `&dyn`; the one real slip without the skill was fixing E0502 with
+`self.players.clone()`. These scenarios turned out to be easy for Sonnet, so treat
+this as a first data point, not a benchmark. Details, limitations and every output are
+in [evals/RESULTS.md](evals/RESULTS.md).
+
+If you run the evals with another agent or model, please post the results in an issue.
 
 ## Contributing
 
