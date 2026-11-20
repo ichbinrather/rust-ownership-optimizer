@@ -1,6 +1,38 @@
 # Eval results
 
-## November 2026, Claude Sonnet
+## Summary
+
+| Run | Without skill | With skill |
+|-----|---------------|------------|
+| Basic scenarios (6 × 3) | 17/18 | 18/18 |
+| Harder scenarios (4 × 3) | 12/12 | 12/12 |
+| **All** | **29/30** | **30/30** |
+
+Model: Claude Sonnet. The only failure without the skill was a `self.players.clone()`
+used to silence E0502. On this model the skill made no other measurable difference.
+The scenarios have not yet been run on smaller models, where the gap may be larger.
+
+## November 2026, Claude Sonnet: harder scenarios
+
+Four scenarios, three attempts each, with and without the skill.
+
+| Scenario | What it tests | Without skill | With skill |
+|----------|---------------|---------------|------------|
+| `closure_lifetime` | boxed closures borrowing a config (`+ '_` instead of cloning) | 3/3 | 3/3 |
+| `nll_case3` | conditional borrow return the current borrow checker rejects | 3/3 | 3/3 |
+| `cow_normalize` | avoid allocating when the input does not change | 3/3 | 3/3 |
+| `split_borrow_method` | `&mut self` method called while iterating a field | 3/3 | 3/3 |
+
+All 24 outputs compiled, printed the original output, and avoided the shortcut each
+scenario looks for. Approaches varied within both groups: in `cow_normalize`, two of
+three runs with the skill and one of three without it returned `Cow<str>`; the others
+removed the allocation by counting bytes directly. In `split_borrow_method`, two runs
+without the skill and one with it used `std::mem::take`; the rest passed disjoint fields
+to a helper function.
+
+Outputs: [`runs/2026-11-sonnet-hard/`](runs/2026-11-sonnet-hard/).
+
+## November 2026, Claude Sonnet: basic scenarios
 
 Six scenarios, three attempts each, with and without the skill: 36 runs in total.
 
@@ -8,11 +40,11 @@ Six scenarios, three attempts each, with and without the skill: 36 runs in total
 |----------|---------------|------------|
 | `e0382_moved_value` | 3/3 | 3/3 |
 | `clone_heavy` | 3/3 | 3/3 |
-| `boxed_everything` | 0/3 | 3/3 |
+| `boxed_everything` | 3/3 (0/3 under the first criterion) | 3/3 |
 | `iterate_and_mutate` | 2/3 | 3/3 |
 | `thread_clone` | 3/3 | 3/3 |
 | `lifetime_static` | 3/3 | 3/3 |
-| **Total** | **14/18** | **18/18** |
+| **Total** | **17/18** (14/18 under the first criterion) | **18/18** |
 
 All 36 outputs compiled and printed the same result as the original program.
 
@@ -20,9 +52,10 @@ All 36 outputs compiled and printed the same result as the original program.
 
 - **`boxed_everything`**: every run removed the needless heap allocations. Without
   the skill, all three runs replaced `Box<dyn Greeter>` with `&dyn Greeter`; with the
-  skill, all three used a generic (`&impl Greeter`). The pass criterion asks for static
-  dispatch, which is the skill's own rule, not a correctness requirement. Read this row
-  as "the agent followed the skill", not as "the baseline was wrong".
+  skill, all three used a generic (`&impl Greeter`). The first version of the check
+  required static dispatch, which was the skill's own preference rather than a
+  correctness requirement. Both the skill and the check were changed afterwards to
+  accept `&dyn`, and the same outputs were re-graded: 3/3 for both groups.
 - **`iterate_and_mutate`**: one run without the skill fixed E0502 by iterating over
   `self.players.clone()`, which is the exact shortcut this project is about
   ([`base-3.rs`](runs/2026-11-sonnet/iterate_and_mutate/base-3.rs)). No run with the

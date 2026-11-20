@@ -13,8 +13,8 @@ When writing or reviewing Rust in this repository:
   then `Rc` / `Arc`, then interior mutability as a last resort.
 - Do not add `.clone()`, `Box`, `Rc<RefCell<_>>`, `'static`, `Box::leak`, or `unsafe`
   only to make the compiler accept the code.
-- Remove `Box<Vec<T>>`, `Box<String>`, boxed locals, and `Box<dyn Trait>` where generics
-  or `impl Trait` work.
+- Remove `Box<Vec<T>>`, `Box<String>`, boxed locals, and `Box<dyn Trait>` parameters
+  that a reference (`&dyn Trait` or `&impl Trait`) would do. `&dyn` is fine.
 - Fix borrow conflicts by shortening borrows, borrowing disjoint fields, using `entry()`,
   `retain`, `std::mem::take`, or `split_at_mut`.
 - After three failed fixes of the same error, redesign the data ownership.

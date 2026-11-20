@@ -3,7 +3,7 @@ name: rust-ownership-optimizer
 description: Guides AI coding agents on Rust ownership, borrowing, lifetimes, and memory optimization; reduces unnecessary clones and allocations by leveraging compile-time ownership analysis. Use when writing, reviewing, or refactoring Rust code, when fixing borrow checker errors (E0382, E0499, E0502, E0505, E0506, E0507, E0515, E0597, E0716, E0106), or when code contains `.clone()`, `Box`, `Rc`, `RefCell`, `Arc`, `Mutex`, `to_string()`, or `to_owned()`.
 license: MIT
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
 ---
 
 # Rust Ownership Optimizer
@@ -96,9 +96,14 @@ Flag `Box<T>` when:
 
 - `T` is a sized value used only locally (`let x = Box::new(5);`). Use the value directly.
 - `Box<Vec<T>>`, `Box<String>`, `Box<HashMap<..>>`: these already own heap storage.
-- `Box<dyn Trait>` is used where the concrete type is known at compile time. Prefer
-  generics (`impl Trait` / `<T: Trait>`) for static dispatch and inlining.
+- A parameter is `Box<dyn Trait>` but the function only uses the value during the call.
+  Take a reference instead: `&dyn Trait` or `&impl Trait`. Both avoid the allocation.
 - A function returns `Box<dyn Iterator>` where `impl Iterator` works.
+
+`&dyn Trait` and generics are both fine; the problem is the `Box`, not the `dyn`. Do not
+rewrite working `&dyn` code into generics just for static dispatch. Prefer generics only
+when the call is in a measured hot path, and keep `&dyn` when it avoids duplicated code
+from monomorphization or keeps compile times and binary size down.
 
 `Box` is **justified** for: recursive types (`enum List { Cons(i32, Box<List>), Nil }`),
 heterogeneous collections of trait objects, very large values moved often, and

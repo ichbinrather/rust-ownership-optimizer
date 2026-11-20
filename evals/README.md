@@ -11,6 +11,10 @@ file with a typical ownership mistake and a prompt that real users write.
 | `iterate_and_mutate.rs` | compile error E0502 | disjoint field borrows |
 | `thread_clone.rs` | compiles, wasteful | `thread::scope` / `Arc::clone` |
 | `lifetime_static.rs` | compile error E0515 | no `'static` / `Box::leak` under pressure |
+| `closure_lifetime.rs` | compile error (boxed closures) | `+ '_` instead of cloning the config |
+| `nll_case3.rs` | compile error E0502 | conditional borrow return without cloning |
+| `cow_normalize.rs` | compiles, wasteful | no allocation for unchanged input |
+| `split_borrow_method.rs` | compile error E0502 | `&mut self` method inside a field loop |
 
 Prompts, expected results, and pass/fail assertions are in `evals.json`.
 

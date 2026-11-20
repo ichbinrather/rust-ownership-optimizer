@@ -102,7 +102,7 @@ this:
 
 ```text
 [clone] src/report.rs:42: report cloned for a read-only call -> take &Report
-[box] src/shapes.rs:10: Box<dyn Shape> with one concrete type -> &impl Shape
+[box] src/shapes.rs:10: Box<dyn Shape> parameter only borrowed -> &dyn Shape
 ```
 
 ### Updating and removing
@@ -123,7 +123,7 @@ If PowerShell says that running scripts is disabled, use the
 - Clones that only exist to satisfy the compiler: read-only arguments, comparisons,
   loops, inspecting an `Option`.
 - `Box` that adds indirection without a reason: `Box<Vec<T>>`, boxed locals,
-  `Box<dyn Trait>` where a generic would do.
+  `Box<dyn Trait>` parameters where a reference would do.
 - Borrow checker errors E0382, E0499, E0502, E0505, E0506, E0507, E0515, E0597, E0716,
   E0106 and E0596, with fixes that do not copy data
   ([references/error-codes.md](references/error-codes.md)).
@@ -155,12 +155,13 @@ To audit your own project with the same Clippy lints the skill uses, run
 with the prompt to give it and what counts as a pass. One of them pushes the agent to
 "just make it compile".
 
-First run, Claude Sonnet, three attempts per scenario: **14/18 without the skill,
-18/18 with it**. Most of the gap is the agent following the skill's preference for
-generics over `&dyn`; the one real slip without the skill was fixing E0502 with
-`self.players.clone()`. These scenarios turned out to be easy for Sonnet, so treat
-this as a first data point, not a benchmark. Details, limitations and every output are
-in [evals/RESULTS.md](evals/RESULTS.md).
+Results so far, Claude Sonnet, three attempts per scenario: **29/30 without the skill,
+30/30 with it**, across ten scenarios including closure lifetimes and the conditional
+borrow case the current borrow checker rejects. The one miss without the skill was
+fixing E0502 with `self.players.clone()`. In other words, Sonnet already handles these
+cases well on its own; the skill has not yet been tested on smaller models, where it is
+more likely to matter. Details and every output are in
+[evals/RESULTS.md](evals/RESULTS.md).
 
 If you run the evals with another agent or model, please post the results in an issue.
 

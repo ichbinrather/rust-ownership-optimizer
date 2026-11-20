@@ -25,6 +25,9 @@ EXPECTED = {
     "e0382_moved_value": "Q3: 2 lines\narchived 2",
     "iterate_and_mutate": '["x joined", "y joined"]',
     "lifetime_static": "ownership",
+    "closure_lifetime": '["hello", "rust"]',
+    "nll_case3": "7 7 8 2",
+    "split_borrow_method": '9 ["tea: 2", "cake: 4", "pie: 3"] 3',
 }
 
 
@@ -68,7 +71,7 @@ def check(name, code):
         checks["no_box_vec"] = not re.search(r"Box\s*<\s*Vec", c)
         checks["no_boxed_local"] = not re.search(r"Box::new\(\s*\d", c)
         run_sig = re.search(r"fn\s+run\s*(<[^>]*>)?\s*\(([^)]*)\)", c)
-        checks["static_dispatch"] = bool(run_sig) and "dyn" not in run_sig.group(2)
+        checks["no_boxed_param"] = bool(run_sig) and "Box" not in run_sig.group(2)
     elif name == "iterate_and_mutate":
         checks["no_vec_clone"] = not re.search(r"players\s*\.\s*clone\(\)", c) and "players.to_vec()" not in c
         checks["no_refcell_unsafe"] = "RefCell" not in c and "unsafe" not in c
@@ -80,6 +83,19 @@ def check(name, code):
         checks["no_leak"] = "leak" not in c
         checks["returns_str_ref"] = bool(re.search(r"fn\s+longest_word[^{]*->\s*&(\s*'\w+)?\s*str", c))
         checks["no_string_vec"] = "Vec<String>" not in c
+    elif name == "closure_lifetime":
+        checks["no_config_copy"] = not re.search(r"banned\s*\.\s*(clone|to_vec|to_owned)\(\)", c) and not re.search(r"cfg\s*\.\s*clone\(\)", c) and "Rc<" not in c and "Arc<" not in c
+        checks["no_static_or_leak"] = "'static" not in c and "leak" not in c
+    elif name == "nll_case3":
+        sig = re.search(r"fn\s+get_or_compute[^{]*", c)
+        checks["returns_reference"] = bool(sig) and re.search(r"->\s*&", sig.group(0)) is not None
+        checks["no_clone"] = ".clone()" not in c and "unsafe" not in c
+    elif name == "cow_normalize":
+        body = re.sub(r"format!\([^)]*\)", "", c)
+        checks["no_alloc_in_common_path"] = not re.search(r"\.to_string\(\)|\.to_owned\(\)|String::from|\.into\(\)", body)
+    elif name == "split_borrow_method":
+        checks["no_items_copy"] = not re.search(r"items\s*\.\s*(clone|to_vec)\(\)", c) and not re.search(r"name\s*\.\s*clone\(\)|\.to_string\(\)", re.sub(r"format!\([^)]*\)", "", c))
+        checks["no_refcell_unsafe"] = "RefCell" not in c and "unsafe" not in c
     return checks
 
 

@@ -4,6 +4,17 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.3.0]
+
+### Changed
+- `&dyn Trait` is no longer flagged. The skill only removes the `Box` around a borrowed
+  trait object and no longer pushes generics for static dispatch.
+
+### Added
+- Four harder eval scenarios: closure lifetimes, conditional borrow return, `Cow`,
+  and `&mut self` methods inside field loops.
+- `evals/grade.py` and the first results on Claude Sonnet in `evals/RESULTS.md`.
+
 ## [0.2.0]
 
 ### Added

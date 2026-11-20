@@ -5,7 +5,9 @@
       "id": 1,
       "name": "e0382-moved-value",
       "prompt": "This Rust file does not compile. Fix it: evals/files/e0382_moved_value.rs",
-      "files": ["evals/files/e0382_moved_value.rs"],
+      "files": [
+        "evals/files/e0382_moved_value.rs"
+      ],
       "expected_output": "Compiles. print_report takes &Report. No clone() of Report or its fields.",
       "assertions": [
         "cargo check / rustc succeeds",
@@ -17,7 +19,9 @@
       "id": 2,
       "name": "clone-heavy",
       "prompt": "Optimize evals/files/clone_heavy.rs. Keep the same output.",
-      "files": ["evals/files/clone_heavy.rs"],
+      "files": [
+        "evals/files/clone_heavy.rs"
+      ],
       "expected_output": "find_user takes &[String] and &str; total_len takes &[String] and iterates by reference; counting uses the entry API; at most one allocation per inserted key.",
       "assertions": [
         "no .clone() remains except one to_string()/clone per new map key",
@@ -31,12 +35,14 @@
       "id": 3,
       "name": "boxed-everything",
       "prompt": "Review evals/files/boxed_everything.rs for unnecessary heap allocations and fix them.",
-      "files": ["evals/files/boxed_everything.rs"],
-      "expected_output": "run takes &impl Greeter or a generic; numbers returns Vec<i32>; count is a plain i32.",
+      "files": [
+        "evals/files/boxed_everything.rs"
+      ],
+      "expected_output": "run takes &dyn Greeter or &impl Greeter; numbers returns Vec<i32>; count is a plain i32.",
       "assertions": [
         "no Box<Vec<_>>",
         "no Box::new(3)",
-        "run uses static dispatch (generic or impl Trait)",
+        "run takes a reference (&dyn Greeter or &impl Greeter), not a Box",
         "findings use the [category] location: problem -> fix format"
       ]
     },
@@ -44,7 +50,9 @@
       "id": 4,
       "name": "iterate-and-mutate",
       "prompt": "Fix the borrow error in evals/files/iterate_and_mutate.rs.",
-      "files": ["evals/files/iterate_and_mutate.rs"],
+      "files": [
+        "evals/files/iterate_and_mutate.rs"
+      ],
       "expected_output": "announce borrows self.players and self.log as disjoint fields. The players Vec is not cloned.",
       "assertions": [
         "compiles",
@@ -56,7 +64,9 @@
       "id": 5,
       "name": "thread-clone",
       "prompt": "Make evals/files/thread_clone.rs use less memory without changing the result.",
-      "files": ["evals/files/thread_clone.rs"],
+      "files": [
+        "evals/files/thread_clone.rs"
+      ],
       "expected_output": "Uses std::thread::scope with borrowed slices, or Arc<Vec<u64>> with Arc::clone. No per-thread copy of the Vec.",
       "assertions": [
         "no data.clone() of the Vec",
@@ -68,13 +78,70 @@
       "id": 6,
       "name": "lifetime-static",
       "prompt": "This does not compile. Fix evals/files/lifetime_static.rs. I need it working fast, do whatever it takes.",
-      "files": ["evals/files/lifetime_static.rs"],
+      "files": [
+        "evals/files/lifetime_static.rs"
+      ],
       "expected_output": "Returns a &str slice borrowed from the input text (no intermediate Vec<String>). Does not use 'static, Box::leak, or return String only to escape the error.",
       "assertions": [
         "compiles",
         "no 'static lifetime added",
         "no Box::leak",
         "return type is &str borrowed from the input"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "closure-lifetime",
+      "prompt": "This does not compile. Fix src/main.rs.",
+      "files": [
+        "evals/files/closure_lifetime.rs"
+      ],
+      "expected_output": "Boxed closures get a non-'static lifetime (`+ '_`) and borrow the config with `move` of the reference. The config is not cloned.",
+      "assertions": [
+        "compiles and prints [\"hello\", \"rust\"]",
+        "no clone/to_vec of cfg or cfg.banned",
+        "no Rc/Arc, 'static, or leak"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "nll-case3",
+      "prompt": "Fix the compile error in src/main.rs.",
+      "files": [
+        "evals/files/nll_case3.rs"
+      ],
+      "expected_output": "get_or_compute still returns a reference; uses the entry API or a contains_key check. No clone.",
+      "assertions": [
+        "compiles and prints 7 7 8 2",
+        "get_or_compute returns a reference",
+        "no clone() or unsafe"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "cow-normalize",
+      "prompt": "Make src/main.rs faster without changing the output.",
+      "files": [
+        "evals/files/cow_normalize.rs"
+      ],
+      "expected_output": "normalize avoids allocating when the input has no spaces, for example by returning Cow<str>.",
+      "assertions": [
+        "output unchanged",
+        "no to_string/to_owned/String::from/into outside the format! calls"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "split-borrow-method",
+      "prompt": "Fix the borrow error in src/main.rs.",
+      "files": [
+        "evals/files/split_borrow_method.rs"
+      ],
+      "expected_output": "checkout avoids the conflict without copying items, for example with std::mem::take, an associated function over disjoint fields, or by reading discount first.",
+      "assertions": [
+        "compiles and prints the same totals",
+        "items are not cloned",
+        "no RefCell or unsafe"
       ]
     }
   ]
