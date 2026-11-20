@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses
 [Semantic Versioning](https://semver.org/).
 
+## [0.4.0]
+
+### Added
+- `scripts/ownership_guard.py`: lists ownership workarounds (`.clone()`, `Rc<RefCell<_>>`,
+  `'static`, `Box::leak`, `unsafe`, ...) added in the current diff. Runs from the skill,
+  as a Claude Code hook, as a git pre-commit hook, or in CI.
+- The skill workflow now ends with a diff check.
+
 ## [0.3.0]
 
 ### Changed

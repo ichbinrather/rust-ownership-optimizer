@@ -3,7 +3,7 @@ name: rust-ownership-optimizer
 description: Guides AI coding agents on Rust ownership, borrowing, lifetimes, and memory optimization; reduces unnecessary clones and allocations by leveraging compile-time ownership analysis. Use when writing, reviewing, or refactoring Rust code, when fixing borrow checker errors (E0382, E0499, E0502, E0505, E0506, E0507, E0515, E0597, E0716, E0106), or when code contains `.clone()`, `Box`, `Rc`, `RefCell`, `Arc`, `Mutex`, `to_string()`, or `to_owned()`.
 license: MIT
 metadata:
-  version: "0.3.0"
+  version: "0.4.0"
 ---
 
 # Rust Ownership Optimizer
@@ -45,7 +45,9 @@ Follow these steps for every Rust task in scope.
    See `references/error-codes.md`.
 3. **Apply the review checklist** below.
 4. **Verify** with `cargo check` and Clippy (see Verification).
-5. **Escalate after three failed attempts.** If the same borrow error survives three
+5. **Check your own diff** with the ownership guard before you finish (see Diff Guard).
+   This matters most when the borrow error was a side issue in a larger task.
+6. **Escalate after three failed attempts.** If the same borrow error survives three
    local fixes, stop patching. Re-examine the data model: ownership roles, struct
    boundaries, or whether the data should be split, indexed, or shared.
 
@@ -189,6 +191,32 @@ changing code.
 Do not claim an optimization compiles until `cargo check` passes. If no toolchain is
 available, say that the code was not compiled.
 
+## Diff Guard
+
+Shortcuts rarely happen when the task is "fix this borrow error". They happen when a
+borrow error interrupts other work and the quickest way back is a `.clone()`. The guard
+lists only the workarounds **you added** in the current change, so it stays quiet on
+existing code.
+
+Run it from inside the git repository before reporting the task as done:
+
+```
+python <skill folder>/scripts/ownership_guard.py
+```
+
+Use `python3` where `python` is not available. It flags new `.clone()`, `.to_owned()`,
+`.to_vec()`, `Rc<RefCell<_>>`, `Arc<Mutex<_>>`, `'static`, `Box::leak`, `unsafe`, and
+boxed collections. `Rc::clone(&x)` and `Arc::clone(&x)` are not flagged.
+
+For every finding, do one of two things:
+
+- Fix it using the checklist above.
+- Keep it and add a specific justification on the same line or the line above:
+  `// ownership: worker thread needs its own copy`. The reason must say why a borrow
+  or a move does not work here. Never add a vague comment just to silence the guard.
+
+If a hook already ran the guard after your edit, treat its output the same way.
+
 ## Anti-Patterns to Refuse
 
 - Adding `.clone()` at every error site until the code compiles.
@@ -205,3 +233,4 @@ available, say that the code was not compiled.
 - `examples/`: compilable before/after programs for clones, `Box`, borrow conflicts,
   and the advanced patterns.
 - `scripts/audit.ps1`, `scripts/audit.sh`: Clippy with the full ownership lint set.
+- `scripts/ownership_guard.py`: lists ownership workarounds added in the current diff.

@@ -135,6 +135,75 @@ If PowerShell says that running scripts is disabled, use the
 
 The full instructions are in [SKILL.md](SKILL.md).
 
+## Diff guard
+
+Strong models rarely take the `.clone()` shortcut when the task is "fix this borrow
+error". It happens when a borrow error shows up in the middle of some other task and
+the clone is the fastest way back. `scripts/ownership_guard.py` catches that case: it
+looks only at the lines added in the current change and lists new `.clone()`,
+`.to_owned()`, `.to_vec()`, `Rc<RefCell<_>>`, `Arc<Mutex<_>>`, `'static`, `Box::leak`,
+`unsafe`, and boxed collections. Existing code is ignored.
+
+```text
+$ python scripts/ownership_guard.py
+src/game.rs:41: [clone] new .clone(): borrow, move on last use, or share with Arc/Rc instead
+    for p in self.players.clone() {
+
+1 new ownership workaround(s). For each one, either fix it or add a specific
+justification on the same line or the line above, e.g. `// ownership: snapshot must outlive the lock`.
+```
+
+A finding goes away when the line is fixed or carries a reason:
+`// ownership: worker thread needs its own copy`. `Rc::clone(&x)` and `Arc::clone(&x)`
+are never flagged. It needs Python 3.8+ and git, and works on Windows, macOS and Linux.
+
+The skill tells the agent to run the guard before it finishes. You can also run it
+automatically in three places.
+
+**After every edit in Claude Code.** Add a hook to `~/.claude/settings.json` (or
+`.claude/settings.json` in a project). The guard's output is sent back to the agent,
+which then fixes or justifies each finding:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/.claude/skills/rust-ownership-optimizer/scripts/ownership_guard.py\" --hook claude"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Use `python` instead of `python3` if that is the name on your system, and adjust the
+path if you installed the skill elsewhere.
+
+**Before every commit.** Save this as `.git/hooks/pre-commit` in your project (on macOS
+and Linux, also run `chmod +x .git/hooks/pre-commit`):
+
+```sh
+#!/bin/sh
+python3 path/to/ownership_guard.py --staged
+```
+
+**In pull requests.** Copy `ownership_guard.py` into your repository and add a step to
+your GitHub Actions workflow:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0
+- run: python3 scripts/ownership_guard.py --base origin/${{ github.base_ref }}
+  if: github.event_name == 'pull_request'
+```
+
 ## Examples
 
 Each rule has a before/after program you can run:

@@ -18,6 +18,9 @@ When writing or reviewing Rust in this repository:
 - Fix borrow conflicts by shortening borrows, borrowing disjoint fields, using `entry()`,
   `retain`, `std::mem::take`, or `split_at_mut`.
 - After three failed fixes of the same error, redesign the data ownership.
+- Before finishing, run `python scripts/ownership_guard.py` (from this skill) to list
+  the clones, `Rc<RefCell<_>>`, `'static` and similar workarounds you added. Fix each
+  one or justify it with `// ownership: <specific reason>`.
 - Verify with `cargo check` and
   `cargo clippy -- -W clippy::redundant_clone -W clippy::needless_pass_by_value`.
 - Report findings as `[category] location: problem -> fix (reason)` with categories
