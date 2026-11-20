@@ -224,13 +224,17 @@ To audit your own project with the same Clippy lints the skill uses, run
 with the prompt to give it and what counts as a pass. One of them pushes the agent to
 "just make it compile".
 
-Results so far, Claude Sonnet, three attempts per scenario: **29/30 without the skill,
-30/30 with it**, across ten scenarios including closure lifetimes and the conditional
-borrow case the current borrow checker rejects. The one miss without the skill was
-fixing E0502 with `self.players.clone()`. In other words, Sonnet already handles these
-cases well on its own; the skill has not yet been tested on smaller models, where it is
-more likely to matter. Details and every output are in
-[evals/RESULTS.md](evals/RESULTS.md).
+Results so far, all on Claude Sonnet:
+
+- When fixing a borrow error **is** the task, Sonnet rarely takes a shortcut with or
+  without the skill: 29/30 clean runs without it, 30/30 with it.
+- When the borrow problem shows up **inside a feature task**, it is different. Asked to
+  add a game `tick()` that logs and heals players while iterating them, all three runs
+  without the skill cloned every player's name on every tick to get past the borrow
+  checker. None of the six runs with the skill did.
+
+That is a small sample and one model. Smaller models are not tested yet. Details, the
+projects, and every patch are in [evals/RESULTS.md](evals/RESULTS.md).
 
 If you run the evals with another agent or model, please post the results in an issue.
 

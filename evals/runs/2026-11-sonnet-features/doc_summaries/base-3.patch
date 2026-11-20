@@ -1,0 +1,25 @@
+diff --git a/src/store.rs b/src/store.rs
+index b7a4955..94ef106 100644
+--- a/src/store.rs
++++ b/src/store.rs
+@@ -21,6 +21,20 @@ impl Store {
+         Store { docs, summaries: HashMap::new(), computed: 0 }
+     }
+ 
++    pub fn summary(&mut self, idx: usize) -> &str {
++        if !self.summaries.contains_key(&idx) {
++            let doc = &self.docs[idx];
++            let first = match doc.body.find('.') {
++                Some(i) => &doc.body[..=i],
++                None => &doc.body[..],
++            };
++            let s = format!("{}: {}", doc.title, first);
++            self.summaries.insert(idx, s);
++            self.computed += 1;
++        }
++        &self.summaries[&idx]
++    }
++
+     pub fn title(&self, idx: usize) -> &str {
+         &self.docs[idx].title
+     }

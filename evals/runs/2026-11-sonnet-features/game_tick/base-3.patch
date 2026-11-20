@@ -1,0 +1,27 @@
+diff --git a/src/world.rs b/src/world.rs
+index 8100601..ca8c523 100644
+--- a/src/world.rs
++++ b/src/world.rs
+@@ -35,6 +35,22 @@ impl World {
+         *self.heals_given.entry(id).or_insert(0) += 1;
+     }
+ 
++    pub fn tick(&mut self) {
++        self.turn += 1;
++        for i in 0..self.players.len() {
++            let (id, hp, max_hp, name) = {
++                let p = &self.players[i];
++                (p.id, p.hp, p.max_hp, p.name.clone())
++            };
++            if hp == 0 {
++                self.log_event(format!("{name} is down"));
++            } else if hp * 100 < max_hp * 30 {
++                self.log_event(format!("{name} is low on health"));
++                self.heal(id, 25);
++            }
++        }
++    }
++
+     pub fn report(&self) -> String {
+         let mut out = String::new();
+         for p in &self.players {

@@ -6,11 +6,56 @@
 |-----|---------------|------------|
 | Basic scenarios (6 × 3) | 17/18 | 18/18 |
 | Harder scenarios (4 × 3) | 12/12 | 12/12 |
-| **All** | **29/30** | **30/30** |
+| Feature tasks (3 × 3), clean result | 6/9 | 18/18 (v0.3 and v0.4) |
 
-Model: Claude Sonnet. The only failure without the skill was a `self.players.clone()`
-used to silence E0502. On this model the skill made no other measurable difference.
-The scenarios have not yet been run on smaller models, where the gap may be larger.
+Model: Claude Sonnet. Every run in every group produced working code. The difference
+is in what it costs:
+
+- When the borrow problem **is** the task, Sonnet rarely takes a shortcut, with or
+  without the skill (one `self.players.clone()` in 30 runs).
+- When the borrow problem shows up **inside a feature task**, all three runs without
+  the skill cloned every player's name on every tick to get past the borrow checker.
+  None of the 18 runs with the skill did.
+- The diff guard (v0.4) did not change the numbers here, because the runs with the
+  v0.3 skill already added no workarounds. Its job is to catch the cases the rules miss.
+
+Smaller models have not been tested yet.
+
+## November 2026, Claude Sonnet: feature tasks
+
+Three small multi-file projects in [`projects/`](projects/), each with a feature to
+add. The borrow problem is not mentioned in the prompt; it appears on the way. Three
+conditions, three attempts each: no skill, the v0.3 skill (rules only), and the v0.4
+skill (rules plus the diff guard).
+
+| Project | Task | No skill | v0.3 skill | v0.4 skill |
+|---------|------|----------|------------|------------|
+| `game_tick` | add `World::tick`, which logs and heals players while iterating them | 3/3 works, **3 clones** | 3/3 works, 0 | 3/3 works, 0 |
+| `doc_summaries` | add a cached `summary(&mut self) -> &str` (conditional borrow return) | 3/3 works, 0 | 3/3 works, 0 | 3/3 works, 0 |
+| `parallel_orders` | split `process_all` across 4 threads | 3/3 works, 0 | 3/3 works, 0 | 3/3 works, 0 |
+
+"Works" means the program prints the reference output (and, for `parallel_orders`, uses
+threads). The second number is the count of new ownership workarounds in the diff, as
+counted by [`ownership_guard.py`](../scripts/ownership_guard.py), including justified ones.
+
+In `game_tick`, all three runs without the skill wrote the same shape:
+
+```rust
+let (id, name, hp, max_hp) = {
+    let p = &self.players[i];
+    (p.id, p.name.clone(), p.hp, p.max_hp)
+};
+```
+
+That allocates a copy of every player's name on every tick, including players that
+need no log line. All six runs with the skill kept a shared borrow, built the message
+with `format!` directly from `p.name`, and only then called `log_event`.
+
+In `parallel_orders`, all 18 runs used `std::thread::scope` with borrowed chunks; none
+cloned the orders or the tax table into threads.
+
+Patches: [`runs/2026-11-sonnet-features/`](runs/2026-11-sonnet-features/). Re-grade with
+`python evals/grade_projects.py evals/runs/2026-11-sonnet-features`.
 
 ## November 2026, Claude Sonnet: harder scenarios
 

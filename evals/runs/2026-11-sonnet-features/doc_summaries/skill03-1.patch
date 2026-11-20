@@ -1,0 +1,27 @@
+diff --git a/src/store.rs b/src/store.rs
+index b7a4955..4a8ec96 100644
+--- a/src/store.rs
++++ b/src/store.rs
+@@ -21,6 +21,22 @@ impl Store {
+         Store { docs, summaries: HashMap::new(), computed: 0 }
+     }
+ 
++    pub fn summary(&mut self, idx: usize) -> &str {
++        use std::collections::hash_map::Entry;
++        match self.summaries.entry(idx) {
++            Entry::Occupied(e) => e.into_mut(),
++            Entry::Vacant(e) => {
++                let doc = &self.docs[idx];
++                let first = match doc.body.find('.') {
++                    Some(i) => &doc.body[..=i],
++                    None => &doc.body,
++                };
++                self.computed += 1;
++                e.insert(format!("{}: {}", doc.title, first))
++            }
++        }
++    }
++
+     pub fn title(&self, idx: usize) -> &str {
+         &self.docs[idx].title
+     }

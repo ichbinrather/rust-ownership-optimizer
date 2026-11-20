@@ -1,0 +1,24 @@
+diff --git a/src/pipeline.rs b/src/pipeline.rs
+index 1800d1b..2050343 100644
+--- a/src/pipeline.rs
++++ b/src/pipeline.rs
+@@ -36,6 +36,18 @@ impl Pipeline {
+ 
+     /// Returns the total of every order, in the original order.
+     pub fn process_all(&self) -> Vec<u64> {
+-        self.orders.iter().map(|o| self.total(o)).collect()
++        const THREADS: usize = 4;
++        let chunk = self.orders.len().div_ceil(THREADS).max(1);
++        std::thread::scope(|s| {
++            let handles: Vec<_> = self
++                .orders
++                .chunks(chunk)
++                .map(|c| s.spawn(move || c.iter().map(|o| self.total(o)).collect::<Vec<u64>>()))
++                .collect();
++            handles
++                .into_iter()
++                .flat_map(|h| h.join().expect("worker panicked"))
++                .collect()
++        })
+     }
+ }

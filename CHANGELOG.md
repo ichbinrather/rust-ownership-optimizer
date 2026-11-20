@@ -11,6 +11,8 @@ All notable changes to this project are documented here. The format follows
   `'static`, `Box::leak`, `unsafe`, ...) added in the current diff. Runs from the skill,
   as a Claude Code hook, as a git pre-commit hook, or in CI.
 - The skill workflow now ends with a diff check.
+- Feature-task evals (`evals/projects/`, `evals/grade_projects.py`) and their first
+  Sonnet results.
 
 ## [0.3.0]
 

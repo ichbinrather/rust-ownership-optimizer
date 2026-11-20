@@ -18,6 +18,17 @@ file with a typical ownership mistake and a prompt that real users write.
 
 Prompts, expected results, and pass/fail assertions are in `evals.json`.
 
+## Feature tasks
+
+`projects/` holds three small multi-file crates. Each eval asks the agent to add a
+feature; the ownership problem is not mentioned and only appears along the way, which
+is where agents tend to take shortcuts. Prompts are in `projects/README.md`. Grade a
+folder of patches (`<project>/<condition>-<n>.patch`, made with `git diff`) with:
+
+```text
+python evals/grade_projects.py evals/runs/2026-11-sonnet-features
+```
+
 ## Running an eval by hand
 
 Run every scenario twice: once with the skill installed, once without it.

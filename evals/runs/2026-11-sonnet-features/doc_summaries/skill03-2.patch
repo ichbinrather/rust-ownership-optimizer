@@ -1,0 +1,23 @@
+diff --git a/src/store.rs b/src/store.rs
+index b7a4955..1a14649 100644
+--- a/src/store.rs
++++ b/src/store.rs
+@@ -24,4 +24,18 @@ impl Store {
+     pub fn title(&self, idx: usize) -> &str {
+         &self.docs[idx].title
+     }
++
++    pub fn summary(&mut self, idx: usize) -> &str {
++        let docs = &self.docs;
++        let computed = &mut self.computed;
++        self.summaries.entry(idx).or_insert_with(|| {
++            *computed += 1;
++            let doc = &docs[idx];
++            let first = match doc.body.find('.') {
++                Some(end) => &doc.body[..=end],
++                None => &doc.body,
++            };
++            format!("{}: {}", doc.title, first)
++        })
++    }
+ }

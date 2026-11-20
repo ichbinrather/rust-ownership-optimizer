@@ -1,0 +1,26 @@
+diff --git a/src/pipeline.rs b/src/pipeline.rs
+index 1800d1b..7263fbf 100644
+--- a/src/pipeline.rs
++++ b/src/pipeline.rs
+@@ -36,6 +36,20 @@ impl Pipeline {
+ 
+     /// Returns the total of every order, in the original order.
+     pub fn process_all(&self) -> Vec<u64> {
+-        self.orders.iter().map(|o| self.total(o)).collect()
++        const THREADS: usize = 4;
++        let chunk_len = self.orders.len().div_ceil(THREADS).max(1);
++        // Scoped threads borrow `self` directly; joining in spawn order keeps results ordered.
++        std::thread::scope(|s| {
++            let handles: Vec<_> = self
++                .orders
++                .chunks(chunk_len)
++                .map(|chunk| s.spawn(move || chunk.iter().map(|o| self.total(o)).collect::<Vec<u64>>()))
++                .collect();
++            let mut out = Vec::with_capacity(self.orders.len());
++            for h in handles {
++                out.extend(h.join().expect("worker thread panicked"));
++            }
++            out
++        })
+     }
+ }
