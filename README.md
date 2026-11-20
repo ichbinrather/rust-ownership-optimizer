@@ -1,0 +1,170 @@
+# rust-ownership-optimizer
+
+[![CI](https://github.com/ichbinrather/rust-ownership-optimizer/actions/workflows/ci.yml/badge.svg)](https://github.com/ichbinrather/rust-ownership-optimizer/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
+A skill for AI coding agents that work on Rust. It stops them from reaching for
+`.clone()`, `Box`, `Rc<RefCell<_>>` or `'static` whenever the borrow checker complains,
+and makes them fix the ownership instead.
+
+Works with Claude Code, Codex CLI, Cursor, GitHub Copilot, Gemini CLI, OpenCode, and
+anything else that reads `SKILL.md` or `AGENTS.md`.
+
+<p align="center">
+  <img src="assets/demo.svg" alt="An agent fixing E0382: without the skill it clones the value, with the skill it borrows it" width="760">
+</p>
+
+## Why
+
+Ask an agent to fix `error[E0382]: borrow of moved value` and a common answer is:
+
+```rust
+print_report(report.clone());
+archive(report);
+```
+
+It compiles, and it copies the whole report on every call. `print_report` only reads
+its argument, so the right fix is a borrow:
+
+```rust
+fn print_report(report: &Report) { /* ... */ }
+
+print_report(&report);
+archive(report);
+```
+
+The skill gives the agent a short procedure for this kind of decision: work out who
+should own the data, map the compiler error to a design question, go through a
+checklist (clones, boxes, borrow conflicts, allocations, lifetimes, smart pointers),
+and confirm with `cargo check` and Clippy. If the same error survives three attempts,
+it rethinks the data layout instead of adding another workaround.
+
+## Install
+
+### Windows
+
+```powershell
+git clone https://github.com/ichbinrather/rust-ownership-optimizer.git
+cd rust-ownership-optimizer
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+### macOS / Linux
+
+```bash
+git clone https://github.com/ichbinrather/rust-ownership-optimizer.git
+cd rust-ownership-optimizer
+./install.sh
+```
+
+The script looks for the config folders of the supported agents (`.claude`, `.codex`,
+`.cursor`, ...) in your home directory and copies the skill into each one it finds.
+Restart the agent afterwards.
+
+Options:
+
+- `-Link` / `--link`: link to the clone instead of copying it, so `git pull` updates
+  the skill. On Windows this creates a directory junction, which does not need admin
+  rights.
+- `-All` / `--all`: also install for agents whose folder does not exist yet.
+- `-Force` / `--force`: overwrite an existing install.
+
+If you have Node.js, `npx skills add ichbinrather/rust-ownership-optimizer` works too.
+
+### Installing by hand
+
+Copy the repository into the agent's skills folder under the name
+`rust-ownership-optimizer`, so that `SKILL.md` ends up directly inside it.
+
+| Agent | Skills folder |
+|-------|---------------|
+| Claude Code | `~/.claude/skills` |
+| Codex CLI | `~/.codex/skills` or `~/.agents/skills` |
+| OpenCode | `~/.config/opencode/skills` |
+| Cursor | `~/.cursor/skills` |
+| Gemini CLI | `~/.gemini/skills` |
+| GitHub Copilot | `~/.copilot/skills` |
+
+On Windows, `~` is `%USERPROFILE%`. These paths have moved between agent versions
+before, so check your agent's docs if the skill does not show up.
+
+To use it in a single project, put it in `.claude/skills/` inside the repository and
+copy `AGENTS.md` to the project root. Agents without skill support can use the rules
+in `AGENTS.md` directly: paste them into `.github/copilot-instructions.md`,
+`.cursor/rules/`, `GEMINI.md`, `.windsurf/rules/`, or `.clinerules/`.
+
+### Checking that it loaded
+
+Restart the agent and ask which skills it has, or call it by name
+(`/rust-ownership-optimizer` in Claude Code, `$rust-ownership-optimizer` in Codex). On a
+Rust project, ask it to review a file for unnecessary clones. Findings come back like
+this:
+
+```text
+[clone] src/report.rs:42: report cloned for a read-only call -> take &Report
+[box] src/shapes.rs:10: Box<dyn Shape> with one concrete type -> &impl Shape
+```
+
+### Updating and removing
+
+With a linked install, `git pull` is enough. With a copied install, pull and run the
+installer again with `-Force` / `--force`.
+
+To remove it, delete `rust-ownership-optimizer` from the agent's skills folder. If you
+installed with `-Link` on Windows, remove the junction with `cmd /c rmdir <path>`.
+In Windows PowerShell 5.1, `Remove-Item -Recurse` on a junction can delete the files in
+your clone as well.
+
+If PowerShell says that running scripts is disabled, use the
+`-ExecutionPolicy Bypass` form shown above. It applies to that single run only.
+
+## What it covers
+
+- Clones that only exist to satisfy the compiler: read-only arguments, comparisons,
+  loops, inspecting an `Option`.
+- `Box` that adds indirection without a reason: `Box<Vec<T>>`, boxed locals,
+  `Box<dyn Trait>` where a generic would do.
+- Borrow checker errors E0382, E0499, E0502, E0505, E0506, E0507, E0515, E0597, E0716,
+  E0106 and E0596, with fixes that do not copy data
+  ([references/error-codes.md](references/error-codes.md)).
+- Closures, `thread::scope`, `Arc` for spawned tasks, iterator adapters, the "get or
+  insert" case the current borrow checker rejects, `Cow`, and index-based graphs
+  ([references/patterns.md](references/patterns.md)).
+- Escape hatches it will not use: `'static` to silence a lifetime error, `Box::leak`,
+  `unsafe`, and `Rc<RefCell<_>>` everywhere.
+
+The full instructions are in [SKILL.md](SKILL.md).
+
+## Examples
+
+Each rule has a before/after program you can run:
+
+```text
+cargo run --example unnecessary_clone
+cargo run --example unnecessary_box
+cargo run --example borrow_conflicts
+cargo run --example advanced_patterns
+```
+
+To audit your own project with the same Clippy lints the skill uses, run
+`scripts/audit.ps1` (Windows) or `scripts/audit.sh` from the project root.
+
+## Evals
+
+[evals/](evals/) has six small programs with mistakes an agent should catch, together
+with the prompt to give it and what counts as a pass. One of them pushes the agent to
+"just make it compile". Run them with and without the skill and compare. If you do,
+please post the results in an issue, including the agent and model you used.
+
+## Contributing
+
+The most useful report is a case where the agent still did the wrong thing with the
+skill installed. There is an issue template for that. For new rules, examples or evals,
+see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+For broader Rust coverage (error handling, async, domain-specific advice), have a look
+at [actionbook/rust-skills](https://github.com/actionbook/rust-skills).
+
+## License
+
+MIT

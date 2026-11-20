@@ -1,0 +1,16 @@
+name: New pattern request
+description: Suggest an ownership or allocation pattern the skill should teach.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: pattern
+    attributes:
+      label: Pattern
+      description: Describe the mistake agents make and the better version.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Before / after code
+      render: rust

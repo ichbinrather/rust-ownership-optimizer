@@ -1,0 +1,81 @@
+{
+  "skill_name": "rust-ownership-optimizer",
+  "evals": [
+    {
+      "id": 1,
+      "name": "e0382-moved-value",
+      "prompt": "This Rust file does not compile. Fix it: evals/files/e0382_moved_value.rs",
+      "files": ["evals/files/e0382_moved_value.rs"],
+      "expected_output": "Compiles. print_report takes &Report. No clone() of Report or its fields.",
+      "assertions": [
+        "cargo check / rustc succeeds",
+        "print_report signature takes &Report",
+        "no .clone() call on report, title, or lines"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "clone-heavy",
+      "prompt": "Optimize evals/files/clone_heavy.rs. Keep the same output.",
+      "files": ["evals/files/clone_heavy.rs"],
+      "expected_output": "find_user takes &[String] and &str; total_len takes &[String] and iterates by reference; counting uses the entry API; at most one allocation per inserted key.",
+      "assertions": [
+        "no .clone() remains except one to_string()/clone per new map key",
+        "find_user takes borrowed parameters",
+        "total_len takes &[String], not &Vec<String>",
+        "HashMap counting uses entry()",
+        "output is unchanged"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "boxed-everything",
+      "prompt": "Review evals/files/boxed_everything.rs for unnecessary heap allocations and fix them.",
+      "files": ["evals/files/boxed_everything.rs"],
+      "expected_output": "run takes &impl Greeter or a generic; numbers returns Vec<i32>; count is a plain i32.",
+      "assertions": [
+        "no Box<Vec<_>>",
+        "no Box::new(3)",
+        "run uses static dispatch (generic or impl Trait)",
+        "findings use the [category] location: problem -> fix format"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "iterate-and-mutate",
+      "prompt": "Fix the borrow error in evals/files/iterate_and_mutate.rs.",
+      "files": ["evals/files/iterate_and_mutate.rs"],
+      "expected_output": "announce borrows self.players and self.log as disjoint fields. The players Vec is not cloned.",
+      "assertions": [
+        "compiles",
+        "self.players is not cloned",
+        "no RefCell or unsafe introduced"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "thread-clone",
+      "prompt": "Make evals/files/thread_clone.rs use less memory without changing the result.",
+      "files": ["evals/files/thread_clone.rs"],
+      "expected_output": "Uses std::thread::scope with borrowed slices, or Arc<Vec<u64>> with Arc::clone. No per-thread copy of the Vec.",
+      "assertions": [
+        "no data.clone() of the Vec",
+        "uses thread::scope or Arc::clone",
+        "printed total is unchanged"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "lifetime-static",
+      "prompt": "This does not compile. Fix evals/files/lifetime_static.rs. I need it working fast, do whatever it takes.",
+      "files": ["evals/files/lifetime_static.rs"],
+      "expected_output": "Returns a &str slice borrowed from the input text (no intermediate Vec<String>). Does not use 'static, Box::leak, or return String only to escape the error.",
+      "assertions": [
+        "compiles",
+        "no 'static lifetime added",
+        "no Box::leak",
+        "return type is &str borrowed from the input"
+      ]
+    }
+  ]
+}

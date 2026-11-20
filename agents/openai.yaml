@@ -1,0 +1,5 @@
+interface:
+  display_name: "Rust Ownership Optimizer"
+  short_description: "Fix borrow errors and remove needless clones, Box, and allocations in Rust"
+policy:
+  allow_implicit_invocation: true

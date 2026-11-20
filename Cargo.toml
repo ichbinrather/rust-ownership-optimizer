@@ -1,0 +1,9 @@
+[package]
+name = "rust-ownership-optimizer-examples"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+description = "Compilable before/after examples for the rust-ownership-optimizer agent skill"
+publish = false
+
+[dependencies]

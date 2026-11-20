@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  examples:
+    name: Examples (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - name: Build examples
+        run: cargo build --examples
+      - name: Run examples
+        shell: bash
+        run: |
+          for f in examples/*.rs; do
+            cargo run --quiet --example "$(basename "$f" .rs)"
+          done
+      - name: Clippy
+        run: cargo clippy --examples -- -D warnings
+
+  skill:
+    name: Validate SKILL.md
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 scripts/validate_skill.py
+
+  install-windows:
+    name: Installer (Windows PowerShell)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Copy install
+        shell: pwsh
+        run: |
+          $env:USERPROFILE = Join-Path $env:RUNNER_TEMP 'home'
+          New-Item -ItemType Directory -Path "$env:USERPROFILE\.claude" -Force | Out-Null
+          .\install.ps1
+          if (-not (Test-Path "$env:USERPROFILE\.claude\skills\rust-ownership-optimizer\SKILL.md")) { throw 'copy install failed' }
+      - name: Junction install with -Force and -All
+        shell: pwsh
+        run: |
+          $env:USERPROFILE = Join-Path $env:RUNNER_TEMP 'home'
+          .\install.ps1 -Link -All -Force
+          if (-not (Test-Path "$env:USERPROFILE\.codex\skills\rust-ownership-optimizer\SKILL.md")) { throw 'junction install failed' }
+      - name: Windows PowerShell 5.1 compatibility
+        shell: powershell
+        run: |
+          $env:USERPROFILE = Join-Path $env:RUNNER_TEMP 'home51'
+          .\install.ps1 -All
+          if (-not (Test-Path "$env:USERPROFILE\.cursor\skills\rust-ownership-optimizer\SKILL.md")) { throw 'PowerShell 5.1 install failed' }
+
+  install-unix:
+    name: Installer (POSIX sh)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          export HOME="$RUNNER_TEMP/home"
+          mkdir -p "$HOME/.claude"
+          sh install.sh
+          test -f "$HOME/.claude/skills/rust-ownership-optimizer/SKILL.md"
+          sh install.sh --link --all --force
+          test -L "$HOME/.codex/skills/rust-ownership-optimizer"
